@@ -1,0 +1,388 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<title>Jade Delight</title>
+	
+<style>
+	.errormsg {
+		color:red;
+		display:none;
+	}
+	#heading {
+		padding:10px;
+	}
+	
+</style>
+
+</head>
+
+
+
+<body>
+
+<script language="javascript">
+
+
+
+function MenuItem(name, cost)
+
+{
+
+	this.name = name;
+
+	this.cost=cost;
+
+}
+
+
+
+menuItems = new Array(
+
+	new MenuItem("Chicken Chop Suey", 4.5),
+
+	new MenuItem("Sweet and Sour Pork", 6.25),
+
+	new MenuItem("Shrimp Lo Mein", 5.25),
+
+	new MenuItem("Moo Shi Chicken", 6.5),
+
+	new MenuItem("Fried Rice", 2.35)
+
+);
+
+
+
+function makeSelect(name, minRange, maxRange)
+
+{
+
+	var t= "";
+
+	t = "<select name='" + name + "' size='1'>";
+
+	for (j=minRange; j<=maxRange; j++)
+
+	   t += "<option>" + j + "</option>";
+
+	t+= "</select>"; 
+
+	return t;
+
+}
+
+</script>
+
+
+
+<h1>Jade Delight</h1>
+
+<form>
+
+<p>First Name: <input type="text"  name="fname" /></p>
+
+<p>Last Name*:  <input type="text"  name="lname" /></p>
+<p class = "errormsg" id="lastname">*Please enter a last name</p>
+	
+<p class="location" style="display:none">Street: <input type="hidden"  name="street" /></p>
+<p class = "errormsg" id="streetname">*Please enter a street name</p>
+	
+<p class="location" style="display:none">City: <input type="hidden"  name="city" /></p>
+<p class = "errormsg" id="cityname">*Please enter a city name</p>
+
+<p>Phone*: <input type="text"  name="phone" /></p>
+<p class = "errormsg" id="phonenumber">*Please enter a valid phone number</p>
+
+<p> 
+
+	<input type="radio"  name="p_or_d" value = "pickup" checked="checked" onclick="hideLocation()" />Pickup  
+
+	<input type="radio"  name="p_or_d" value = "delivery" onclick="showLocation()" />Delivery
+
+</p>
+
+<table border="0" cellpadding="3" id="menu">
+
+  <tr>
+
+    <th>Select Item</th>
+
+    <th>Item Name</th>
+
+    <th>Cost Each</th>
+
+    <th>Total Cost</th>
+
+  </tr>
+
+<script language="javascript">
+//makes table 
+  var s = "";
+
+  for (i=0; i< menuItems.length; i++)
+
+  {
+
+	  s += "<tr><td>";
+
+	  s += makeSelect("quan" + i, 0, 10);
+
+	  s += "</td><td>" + menuItems[i].name + "</td>";
+
+	  s += "<td> $ " + menuItems[i].cost.toFixed(2) + "</td>";
+
+	  s += "<td>$<input type='text' name='cost'/></td></tr>";
+
+  }
+
+  document.writeln(s);
+
+</script>
+</table>
+	
+<p class="errormsg" id="smthordered">*Please add at least one item to your cart</p>
+
+<!--show costs-->
+<script language = "javascript">
+	
+	for(i=0;i<menuItems.length;i++) {
+		document.getElementsByName("quan"+i)[0].onchange=function(){totalCost()};
+	}
+	
+	function totalCost() {
+		var subtotal = 0;
+		var tax = 0;
+		var total = 0;
+		
+		//Update cost for each menu item
+		for (i=0;i<menuItems.length;i++) {
+			var quan = parseInt(document.getElementsByName("quan"+i)[0].value);
+			var itemCost = quan*menuItems[i].cost;
+			subtotal += itemCost;
+			itemCost = itemCost.toFixed(2);
+			document.getElementById("menu").rows[i+1].cells[3].children[0].value = itemCost; 
+		}
+		
+		//update subtotal
+		document.getElementById("subtotal").value=subtotal.toFixed(2);
+		
+		//update tax
+		tax = subtotal*0.0625;
+		document.getElementById("tax").value=tax.toFixed(2); 
+		
+		//update total cost
+		total = subtotal + tax;
+		document.getElementById("total").value=total.toFixed(2);
+	}
+	
+</script>
+	
+<!--Show or hide location -->
+<script language="javascript">
+	
+	var street = document.getElementsByName("street")[0]
+	var city = document.getElementsByName("city")[0]
+	
+	function showLocation(){
+		street.type="text";
+		city.type="text";
+		$(".location").css("display","block");
+		$(".location").css("display","block");
+	}
+	
+	function hideLocation(){
+		street.type="hidden";
+		city.type="hidden";
+		$(".location").css("display","none");
+		$(".location").css("display","none");
+	}
+	
+</script>
+
+<!--Validate form-->
+<script language = "javascript">
+	
+	//validate phone number
+	function validatePhoneNumber(phoneNumber){
+		
+		//check if all numbers
+		if(isNaN(phoneNumber)){
+			return false;
+		}
+		
+		//check if 10 characters long
+		if((phoneNumber.toString().length)!=10){
+			return false;
+		}
+		return true;
+	}
+	
+	//validate last name
+	function validateLastName(lastName){
+		if (lastName==""){
+			return false;
+		}
+		return true;
+	}
+	
+	//delivery or pickup
+	function p_or_d(){
+		var pickup = document.getElementsByName("p_or_d")[0];
+		if (pickup.checked==true){
+			return "pickup";
+		} else {
+			return "delivery";
+		}
+	}
+	
+	function validateStreetName(streetName){
+		if (streetName==""){
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	function validateCity(city){
+		if (city==""){
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	//checks whether at least one item is ordered
+	function somethingOrdered(){
+		var subtotal = parseInt(document.getElementsByName("subtotal")[0].value);
+		if (subtotal == 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	//returns string of order info
+	function orderInfo(){
+		var str = "";
+		for (i=0;i<menuItems.length;i++){
+			var quan = parseInt(document.getElementsByName("quan"+i)[0].value);
+			var itemCost = quan*menuItems[i].cost;
+			if(quan!=0) {
+				var cost = (itemCost).toFixed(2);
+				str += quan + " " + menuItems[i].name + ": $" + cost + "<br>";
+			}
+		}
+		str += "<br>" + "Subtotal: $" + document.getElementsByName("subtotal")[0].value + "<br>"
+		+ "Tax (6.25%): $" + document.getElementsByName("tax")[0].value + "<br>"
+		+ "Total: $" + document.getElementsByName("total")[0].value + "<br>" + "<br>";
+		
+		if (p_or_d() == "pickup") {
+			str += "Ready for pickup in 15 minutes"; 
+		} else {
+			var fname = document.getElementsByName("fname")[0].value;
+			var lname = document.getElementsByName("lname")[0].value;
+			var streetName = document.getElementsByName("street")[0].value;
+			var city = document.getElementsByName("city")[0].value;
+			str += "Order for " + fname + " " + lname + " at " + streetName + ", " + city + " will be delivered in 30 minutes";
+		}
+		return str;
+	}
+	
+	//validate order
+	function validate(){
+		var phoneNumber = document.getElementsByName("phone")[0].value;
+		var lastName = document.getElementsByName("lname")[0].value;
+		var streetName = document.getElementsByName("street")[0].value;
+		var city = document.getElementsByName("city")[0].value;
+		var validated = true;
+		
+		//alert that phone number needs to be entered
+		if (validatePhoneNumber(phoneNumber)==false){
+			validated=false;
+			$("#phonenumber").css("display","block");
+		} else {
+			$("#phonenumber").css("display","none");
+		}
+		
+		//alert that last name needs to be entered
+		if (validateLastName(lastName) == false) {
+			validated=false;
+			$("#lastname").css("display","block");
+		} else {
+			$("#lastname").css("display","none");
+		}
+		
+		//alert for street name and city
+		if (p_or_d() == "delivery"){
+			if (validateStreetName(streetName) == false) {
+				validated=false;
+				$("#streetname").css("display","block");
+			} else {
+				$("#streetname").css("display","none");
+			}
+			if (validateCity(city) == false) {
+				validated=false;
+				$("#cityname").css("display","block");
+			} else {
+				$("#cityname").css("display","none");
+			}
+		}
+		
+		//alert to order something
+		if (somethingOrdered() == false) {
+			validated=false;
+			$("#smthordered").css("display","block");
+		} else {
+			$("#smthordered").css("display","none");
+		}
+		
+		//everything is good
+		if (validated==true) {
+			var output = "<div class='output'>" +
+				"<h1 id='heading'>Thank you for your order!</h1>" +
+				"<p>" + orderInfo() + "</p>" +
+				"</div>";
+			
+			window.open().document.write(output)
+		}
+	
+	}
+	
+</script>
+
+
+
+<p>Subtotal: 
+
+   $<input type="text"  name="subtotal" id="subtotal" value="0.00"/>
+
+</p>
+
+<p>Mass tax 6.25%:
+
+  $ <input type="text"  name="tax" id="tax" value="0.00"/>
+
+</p>
+
+<p>Total: $ <input type="text"  name="total" id="total" value="0.00"/>
+
+</p>
+
+
+
+<input type = "button" value = "Submit Order" onclick = "validate();"/>
+
+
+
+</form>
+
+</body>
+
+</html>
